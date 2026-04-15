@@ -12,6 +12,6 @@
 <details>
 <summary> Решение </summary>
 
-<img src="img/task1.png" alt="ElasticSearch" width="500" health="1000">
+<img src="img/task1.png" alt="ElasticSearch" width="100%" health="100%">
 
 </details>
