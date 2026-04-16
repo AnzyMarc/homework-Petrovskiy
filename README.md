@@ -54,3 +54,23 @@
 <img src="img/task3.1.png" alt="discover" width="100%" health="100%">
 
 </details>
+
+### Задание 4. Filebeat. 
+
+Установите и запустите Filebeat. Переключите поставку логов Nginx с Logstash на Filebeat. 
+
+*Приведите скриншот интерфейса Kibana, на котором видны логи Nginx, которые были отправлены через Filebeat.*
+
+<details>
+<summary> Решение </summary>
+ 
+ ### DevTools
+<img src="img/filebeatDevtools.png" alt="devtools" width="100%" health="100%">
+
+-------------------------
+
+### Discover
+
+<img src="img/filebeatDiscover.png" alt="discover" width="100%" health="100%">
+
+</details>
