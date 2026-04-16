@@ -16,6 +16,7 @@
 
 </details>
 
+---
 
 ### Задание 2. Kibana
 
@@ -31,6 +32,8 @@
 <img src="img/task2.png" alt="kibana" width="100%" health="100%">
 
 </details>
+
+---
 
 
 ### Задание 3. Logstash
@@ -55,6 +58,8 @@
 
 </details>
 
+---
+
 ### Задание 4. Filebeat. 
 
 Установите и запустите Filebeat. Переключите поставку логов Nginx с Logstash на Filebeat. 
@@ -74,3 +79,5 @@
 <img src="img/filebeatDiscover.png" alt="discover" width="100%" health="100%">
 
 </details>
+
+---
