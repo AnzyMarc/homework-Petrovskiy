@@ -51,6 +51,6 @@
 
 ### Discover
 
-<img src="img/task3.png" alt="discover" width="100%" health="100%">
+<img src="img/task3.1.png" alt="discover" width="100%" health="100%">
 
 </details>
