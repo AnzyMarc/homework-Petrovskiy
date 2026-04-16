@@ -31,3 +31,26 @@
 <img src="img/task2.png" alt="kibana" width="100%" health="100%">
 
 </details>
+
+
+### Задание 3. Logstash
+
+Установите и запустите Logstash и Nginx. С помощью Logstash отправьте access-лог Nginx в Elasticsearch. 
+
+*Приведите скриншот интерфейса Kibana, на котором видны логи Nginx.*
+
+---
+
+<details>
+<summary> Решение </summary>
+ 
+ ### DevTools
+<img src="img/task3.png" alt="devtools" width="100%" health="100%">
+
+-------------------------
+
+### Discover
+
+<img src="img/task3.png" alt="discover" width="100%" health="100%">
+
+</details>
