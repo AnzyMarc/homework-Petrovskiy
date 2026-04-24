@@ -1,53 +1,12 @@
+version: '3.8'
 services:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
-    container_name: elasticsearch
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: rabbitmq-dev
+    ports:
+      - "5672:5672"   # Порт для передачи сообщений
+      - "15672:15672" # Порт веб-интерфейса
     environment:
-      - node.name=es01
-      - cluster.name=netology-cluster-andrei  
-      - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ports:
-      - 9200:9200
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.17.0
-    container_name: kibana
-    ports:
-      - 5601:5601
-    depends_on:
-      - elasticsearch
-
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    ports:
-      - 8080:80
-  
-    volumes:
-      - nginx_logs:/var/log/nginx
-
-  logstash:
-    image: docker.elastic.co/logstash/logstash:7.17.0
-    container_name: logstash
-    
-    user: root 
-    volumes:
-      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
-      - ./custom.log:/var/log/nginx/access.log:ro
-    depends_on:
-      - elasticsearch
-  filebeat:
-    image: docker.elastic.co/beats/filebeat:7.17.0
-    container_name: filebeat
-    user: root
-    volumes:
-      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    depends_on:
-      - elasticsearch    
-
-volumes:
-  nginx_logs:   
-          
+      RABBITMQ_DEFAULT_USER: andrei
+      RABBITMQ_DEFAULT_PASS: ximera
+    restart: always
