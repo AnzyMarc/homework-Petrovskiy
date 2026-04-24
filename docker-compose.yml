@@ -1,12 +1,32 @@
 version: '3.8'
+
 services:
-  rabbitmq:
+  rmq01:
     image: rabbitmq:3.12-management
-    container_name: rabbitmq-dev
+    container_name: rmq01
+    hostname: rmq01
     ports:
-      - "5672:5672"   # Порт для передачи сообщений
-      - "15672:15672" # Порт веб-интерфейса
+      - "5672:5672"
+      - "15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: andrei
-      RABBITMQ_DEFAULT_PASS: ximera
-    restart: always
+      - RABBITMQ_DEFAULT_USER=andrei
+      - RABBITMQ_DEFAULT_PASS=ximera
+    networks:
+      - rmq-net
+
+  python-scripts:
+    image: python:3.9-slim
+    container_name: rmq-scripts
+    volumes:
+      - .:/usr/src/app
+    working_dir: /usr/src/app
+    depends_on:
+      - rmq01
+    networks:
+      - rmq-net
+    command: sh -c "pip install pika && python producer.py"
+
+# ВОТ ЭТОГО БЛОКА НЕ ХВАТАЛО:
+networks:
+  rmq-net:
+    driver: bridge
