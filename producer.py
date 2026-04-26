@@ -1,5 +1,6 @@
 import pika
 
+# Данные из твоего docker-compose
 credentials = pika.PlainCredentials('andrei', 'ximera')
 parameters = pika.ConnectionParameters(host='rmq01', credentials=credentials)
 
@@ -7,11 +8,6 @@ connection = pika.BlockingConnection(parameters)
 channel = connection.channel()
 channel.queue_declare(queue='hello')
 
-def callback(ch, method, properties, body):
-    print(" [x] Received %r" % body)
-
-
-channel.basic_consume(queue='hello', on_message_callback=callback, auto_ack=True)
-
-print(' [*] Waiting for messages. To exit press CTRL+C')
-channel.start_consuming()
+channel.basic_publish(exchange='', routing_key='hello', body='Hello Netology!')
+print(" [x] Sent 'Hello Netology!'")
+connection.close()
