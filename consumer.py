@@ -1,17 +1,16 @@
+#!/usr/bin/env python
+# coding=utf-8
 import pika
 
-credentials = pika.PlainCredentials('andrei', 'ximera')
-parameters = pika.ConnectionParameters(host='rmq01', credentials=credentials)
-
+credentials = pika.PlainCredentials('admin', 'superpassword')
+parameters = pika.ConnectionParameters('localhost', credentials=credentials)
 connection = pika.BlockingConnection(parameters)
 channel = connection.channel()
 channel.queue_declare(queue='hello')
 
-def callback(ch, method, properties, body):
-    print(" [x] Received %r" % body)
 
+def callback(ch, method, properties, body):
+   print(f" [x] Received: {body.decode('utf-8')}")
 
 channel.basic_consume(queue='hello', on_message_callback=callback, auto_ack=True)
-
-print(' [*] Waiting for messages. To exit press CTRL+C')
 channel.start_consuming()

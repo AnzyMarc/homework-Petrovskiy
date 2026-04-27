@@ -13,7 +13,7 @@
 <details>
 <summary> Решение </summary>
 
-<img src="img/web.png" alt="rabbitmq_web" width="100%" health="100%">
+<img src="img/tack1.png" alt="rabbitmq_web" width="100%" health="100%">
 
 </details>
 
@@ -43,9 +43,9 @@ $ pip install pika
 <details>
 <summary> Решение </summary>
 
-<img src="img/tack2.png" alt="rabbitmq_web2" width="100%" health="100%">
+<img src="img/tack2Web.png" alt="rabbitmq_web2" width="100%" health="100%">
 
-<img src="img/tack2_ter.png" alt="terminal" width="100%" health="100%">
+<img src="img/tack2_terminal.png" alt="terminal" width="100%" health="100%">
 
 
 

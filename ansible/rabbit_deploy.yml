@@ -1,0 +1,62 @@
+---
+- name: Setup RabbitMQ via Docker
+  hosts: rmq_servers
+  become: yes
+  tasks:
+    - name: Update apt cache and install Docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Ensure Docker is started and enabled
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Remove existing RabbitMQ container if it exists
+      shell: docker rm -f rabbitmq-server || true
+      # Мы используем || true, чтобы плейбук не падал, если контейнера еще нет
+
+    - name: Run RabbitMQ with Management Plugin
+      shell: |
+        docker run -d \
+          --name rabbitmq-server \
+          --restart always \
+          -p 5672:5672 \
+          -p 15672:15672 \
+          -e RABBITMQ_DEFAULT_USER=admin \
+          -e RABBITMQ_DEFAULT_PASS=superpassword \
+          rabbitmq:3-management
+
+    - name: Wait for RabbitMQ to start
+      pause:
+        seconds: 10
+      # Даем немного времени контейнеру подняться перед проверкой
+
+    - name: Install Python3 and Pika on server
+      apt:
+        name: 
+          - python3
+          - python3-pip
+        state: present
+
+    - name: Install Pika via pip
+      pip:
+        name: pika
+        executable: pip3
+
+    - name: Copy scripts to server
+      copy:
+        src: "../{{ item }}"
+        dest: "/home/ubuntu/{{ item }}"
+        mode: '0755'
+      loop:
+        - producer.py
+        - consumer.py
+
+    - name: Run Producer to create queue and message
+      shell: python3 /home/ubuntu/producer.py  
+
+
