@@ -1,7 +1,7 @@
 ---
-- name: Setup RabbitMQ via Docker
+- name: Setup RabbitMQ Cluster via Docker
   hosts: rmq_servers
-  become: yes
+  become: true
   tasks:
     - name: Update apt cache and install Docker
       apt:
@@ -15,39 +15,49 @@
         state: started
         enabled: yes
 
-    - name: Remove existing RabbitMQ container if it exists
-      shell: docker rm -f rabbitmq-server || true
-      # Мы используем || true, чтобы плейбук не падал, если контейнера еще нет
+    - name: Update /etc/hosts with dynamic internal IPs
+      lineinfile:
+        path: /etc/hosts
+        line: "{{ item }}"
+      loop:
+        - "{{ rmq0_ip }} rmq-0"
+        - "{{ rmq1_ip }} rmq-1"
 
-    - name: Run RabbitMQ with Management Plugin
-      shell: |
-        docker run -d \
-          --name rabbitmq-server \
-          --restart always \
-          -p 5672:5672 \
-          -p 15672:15672 \
-          -e RABBITMQ_DEFAULT_USER=admin \
-          -e RABBITMQ_DEFAULT_PASS=superpassword \
-          rabbitmq:3-management
+    - name: Remove existing RabbitMQ container
+      shell: docker rm -f rabbitmq-server || true
+
+    - name: Run RabbitMQ with Management and Cluster settings
+      docker_container:
+        name: rabbitmq-server
+        image: rabbitmq:3-management
+        network_mode: host
+        restart_policy: always
+        env:
+          RABBITMQ_DEFAULT_USER: "admin"
+          RABBITMQ_DEFAULT_PASS: "superpassword"
+          RABBITMQ_ERLANG_COOKIE: "PETROVSKIY_SECRET_COOKIE" # Одинаковый для всех!
+          RABBITMQ_NODENAME: "rabbit@{{ ansible_hostname }}"
 
     - name: Wait for RabbitMQ to start
       pause:
-        seconds: 10
-      # Даем немного времени контейнеру подняться перед проверкой
+        seconds: 20
 
-    - name: Install Python3 and Pika on server
+    # Настройка зеркалирования (HA-policy)
+    - name: Set HA policy for all queues
+      shell: docker exec rabbitmq-server rabbitmqctl set_policy ha-all ".*" '{"ha-mode":"all"}'
+      run_once: true # Достаточно запустить на одной ноде
+
+    - name: Install Python3 and Pika
       apt:
-        name: 
-          - python3
-          - python3-pip
+        name: [python3, python3-pip]
         state: present
 
-    - name: Install Pika via pip
+    - name: Install Pika
       pip:
         name: pika
         executable: pip3
 
-    - name: Copy scripts to server
+    - name: Copy scripts
       copy:
         src: "../{{ item }}"
         dest: "/home/ubuntu/{{ item }}"
@@ -56,7 +66,20 @@
         - producer.py
         - consumer.py
 
-    - name: Run Producer to create queue and message
-      shell: python3 /home/ubuntu/producer.py  
+    - name: Join rmq-1 to cluster
+      shell: |
+        docker exec rabbitmq-server rabbitmqctl stop_app
+        docker exec rabbitmq-server rabbitmqctl join_cluster rabbit@rmq-0
+        docker exec rabbitmq-server rabbitmqctl start_app
+      when: ansible_host == "111.88.146.207"
+      ignore_errors: yes
 
+    - name: Final check of cluster status
+      shell: docker exec rabbitmq-server rabbitmqctl cluster_status
+      register: cluster_out
+      run_once: true
 
+    - name: Show cluster status
+      debug:
+        msg: "{{ cluster_out.stdout_lines }}"
+      run_once: true    
