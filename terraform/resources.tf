@@ -7,21 +7,18 @@ data "yandex_compute_image" "ubuntu" {
   family = "ubuntu-2204-lts"
 }
 
-# Подсеть - ОБЯЗАТЕЛЬНО в зоне 'b'
+# Подсеть 
 resource "yandex_vpc_subnet" "subnet-1" {
   name           = "subnet1"
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.network-1.id
   v4_cidr_blocks = ["192.168.10.0/24"]
 }
 
-# Две виртуальные машины
-resource "yandex_compute_instance" "vm-rabbit" {
-  count = 2
-  name  = "rmq-${count.index}"
-  
-  # ДОБАВЬ ЭТУ СТРОКУ, чтобы зона совпадала с подсетью
-  zone  = "ru-central1-b" 
+#   виртуальная машина для MySQL
+resource "yandex_compute_instance" "vm-mysql" {
+  name = "mysql-server"
+  zone = "ru-central1-a"
 
   resources {
     cores  = 2
@@ -30,25 +27,27 @@ resource "yandex_compute_instance" "vm-rabbit" {
 
   boot_disk {
     initialize_params {
-      image_id = data.yandex_compute_image.ubuntu.id 
+      image_id = data.yandex_compute_image.ubuntu.id
       size     = 20
     }
   }
 
   network_interface {
     subnet_id = yandex_vpc_subnet.subnet-1.id
-    nat       = true 
+    nat       = true
   }
-
+  # Подключение метаданных
   metadata = {
     ssh-keys = "ubuntu:${file(var.public_key_path)}"
   }
 }
 
-output "external_ips_rabbit" {
-  value = yandex_compute_instance.vm-rabbit[*].network_interface.0.nat_ip_address
+# Вывод внешнего IP
+output "external_ip_mysql" {
+  value = yandex_compute_instance.vm-mysql.network_interface.0.nat_ip_address
 }
 
-output "internal_ips_rabbit" {
-  value = yandex_compute_instance.vm-rabbit[*].network_interface.0.ip_address
+# Вывод внутреннего IP
+output "internal_ip_mysql" {
+  value = yandex_compute_instance.vm-mysql.network_interface.0.ip_address
 }
