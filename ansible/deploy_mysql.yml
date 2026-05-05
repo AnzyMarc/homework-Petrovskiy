@@ -48,6 +48,8 @@
         state: present
         host: "%"
         column_case_sensitive: false
+        # Выполняем требование п. 1.6 
+        plugin: mysql_native_password
 
     - name: Copy Sakila DB to server
       copy:
@@ -76,3 +78,19 @@
       shell: |
         docker exec mysql_server mysql -u root -p{{ mysql_root_password }} -e "SOURCE /tmp/sakila-schema.sql;"
         docker exec mysql_server mysql -u root -p{{ mysql_root_password }} -e "SOURCE /tmp/sakila-data.sql;"
+
+    - name: Copy check script to server
+      copy:
+        src: ./sql/check_db.sql
+        dest: /tmp/check_db.sql
+        
+    - name: Copy check script into container
+      shell: docker cp /tmp/check_db.sql mysql_server:/tmp/check_db.sql        
+        
+    - name: Run check queries
+      shell: docker exec -i mysql_server mysql -u root -p{{ mysql_root_password }} -e "source /tmp/check_db.sql"
+      register: db_check_output
+
+    - name: Display database check results
+      debug:
+        var: db_check_output.stdout_lines    
