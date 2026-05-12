@@ -52,11 +52,11 @@
 <details>
 <summary>Решение</summary>
 
-<img src="STATUS.png" alt="status" width="100%" health="100%">
+<img src="img/STATUS.png" alt="status" width="100%" health="100%">
 
 ----------------------------------
 
-<img src="TEST_REPL.png" alt="test" width="100%" health="100%">
+<img src="img/TEST_REPL.png" alt="test" width="100%" health="100%">
 
 Исходный код в репозитории
 </details>
